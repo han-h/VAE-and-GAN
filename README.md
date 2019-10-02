@@ -1,19 +1,19 @@
 ### VAE
 
-<img src="./img/VAE.gif" alt="" style="zoom:30%;" />
+![](./img/VAE.gif)
 
 ### CVAE
 
-<img src="./img/CVAE.gif" alt="" style="zoom:30%;" />
+![](./img/CVAE.gif)
 
 ### GAN
 
-<img src="./img/GAN.gif" alt="" style="zoom:30%;" />
+![](./img/GAN.gif)
 
 ### WGAN
 
-<img src="./img/WGAN.gif" alt="" style="zoom:30%;" />
+![](./img/WGAN.gif)
 
 ### CGAN
 
-<img src="./img/CGAN.gif" alt="" style="zoom:30%;" />
+![](./img/CGAN.gif)
