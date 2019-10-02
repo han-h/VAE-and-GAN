@@ -1,7 +1,7 @@
 import imageio
 
-path="CGAN"
-num=30
+path="WGAN"
+num=20
 
 output_filename="./"+path+".gif"
 
