@@ -49,7 +49,7 @@ class WGANRunner:
         n=self.args.test_num
         digit_size=28
         figure=np.zeros((digit_size*n, digit_size*n))
-        Z=self.wgan.sample(n*n).cuda()
+        Z=self.wgan.sample(n*n).cuda().unsqueeze(-1).unsqueeze(-1)
         # batch_size * digit_size * digit_size
         result=(self.wgan.generator(Z).squeeze().detach().cpu().numpy()+1)/2
         result=result.reshape(n*n,digit_size,digit_size)
@@ -76,21 +76,20 @@ class WGANRunner:
 
             batch_size=images.shape[0]
 
-            eps=t.rand(batch_size,1).cuda()
-            noise=self.wgan.sample(batch_size).cuda()
-            fake=self.wgan.generator(noise).detach()
-            inter=eps*images.reshape(-1,self.args.input_dim)+(-eps+1)*fake
-            inter.requires_grad=True
-
-            grad=t.autograd.grad(self.wgan.discriminator(inter),inter,t.ones(batch_size,1).cuda(),create_graph=True)[0]
-
-            grad_norm=t.sqrt(t.sum(grad**2,dim=1))
-
-            grad_penalty=self.args.lamda*t.mean(t.relu(grad_norm-1))
+            eps=t.rand(batch_size,1,1,1).cuda()
+            noise=self.wgan.sample(batch_size).cuda().unsqueeze(-1).unsqueeze(-1)
+            fake=self.wgan.generator(noise)
+            inter=eps*images+(-eps+1)*fake
 
 
-            discriminator_loss=t.mean(self.wgan.discriminator(images.reshape(-1,self.args.input_dim))-self.wgan.discriminator(fake))+grad_penalty
+            self.generator_optimizer.zero_grad()
+            self.discriminator_optimizer.zero_grad()
+            # batch_size * input_dim
+            grad=t.autograd.grad(self.wgan.discriminator(inter),inter,t.ones(batch_size,1,1,1).cuda(),create_graph=True)[0]
 
+            grad_penalty=self.args.lamda*((grad.norm(2,dim=1)-1)**2).mean()
+
+            discriminator_loss=t.mean(self.wgan.discriminator(images)-self.wgan.discriminator(fake))+grad_penalty
 
             # train discriminator
             self.generator_optimizer.zero_grad()
@@ -99,7 +98,7 @@ class WGANRunner:
             self.discriminator_optimizer.step()
 
             # train generator
-            noise=self.wgan.sample(batch_size).cuda()
+            noise=self.wgan.sample(batch_size).cuda().unsqueeze(-1).unsqueeze(-1)
             fake=self.wgan.generator(noise)
             generator_loss=t.mean(self.wgan.discriminator(fake))
 

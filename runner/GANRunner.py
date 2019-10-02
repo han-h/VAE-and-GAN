@@ -18,7 +18,7 @@ class GANRunner:
         self._build_optimizer()
 
     def _get_dataset(self):
-        transform=transforms.Compose([transforms.Resize([64,64]),transforms.ToTensor()])
+        transform=transforms.Compose([transforms.ToTensor()])
         train=datasets.MNIST(root=self.args.data_root,transform=transform,train=True,download=True)
         test=datasets.MNIST(root=self.args.data_root,transform=transform,train=False,download=True)
         return train,test
@@ -47,7 +47,7 @@ class GANRunner:
         self.gan.generator.eval()
         self.gan.discriminator.eval()
         n=self.args.test_num
-        digit_size=64
+        digit_size=28
         figure=np.zeros((digit_size*n, digit_size*n))
         Z=self.gan.sample(n*n).cuda().unsqueeze(-1).unsqueeze(-1)
         # batch_size * digit_size * digit_size
@@ -68,8 +68,8 @@ class GANRunner:
         self.gan.discriminator.train()
         for batch_id,batch in enumerate(self.train_loader, 1):
 
-            # batch_size * 1 * 64 * 64  grey image, scale to [-1,1)
-            images=batch[0]*2-1
+            # batch_size * 1 * 28 * 28  grey image, scale to [-1,1)
+            images=batch[0].cuda()*2-1
 
             # batch_size
             # label=batch[1]
@@ -86,7 +86,7 @@ class GANRunner:
             # detach to stop gradient back propagating to generator
             fake=self.gan.generator(noise).detach()
             dis_fake=self.gan.discriminator(fake).squeeze()
-            dis_real=self.gan.discriminator(images.cuda()).squeeze()
+            dis_real=self.gan.discriminator(images).squeeze()
 
             discriminator_loss=self.gan.bce(dis_real,real_target)+self.gan.bce(dis_fake,fake_target)
 

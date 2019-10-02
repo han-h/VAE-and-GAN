@@ -9,20 +9,33 @@ class WGAN():
         # latent_dim = 10
 
         self.generator=nn.Sequential(
-            nn.Linear(self.args.latent_dim,64),
+            # input is Z, going into a convolution
+            # input is batch_size x latent_dim x 1 x 1
+            nn.ConvTranspose2d(self.args.latent_dim,256,7,1,0),
+            nn.BatchNorm2d(256),
             nn.LeakyReLU(0.2),
-            nn.Linear(64,128),
+            # state size. 256 x 7 x 7
+            nn.ConvTranspose2d(256,128,4,2,1),
+            nn.BatchNorm2d(128),
             nn.LeakyReLU(0.2),
-            nn.Linear(128,self.args.input_dim),
+            # state size. 128 x 14 x 14
+            nn.ConvTranspose2d(128,1,4,2,1),
+            # state size. 1 x 28 x 28
             nn.Tanh()
         )
 
         self.discriminator=nn.Sequential(
-            nn.Linear(self.args.input_dim,128),
+            # input is batch_size x 1 x 28 x 28
+            nn.Conv2d(1,128,4,2,1),
             nn.LeakyReLU(0.2),
-            nn.Linear(128,64),
+            # state size. 128 x 15 x 15
+            nn.Conv2d(128,256,4,2,1),
+            nn.BatchNorm2d(256),
             nn.LeakyReLU(0.2),
-            nn.Linear(64,1)
+            # state size. 256 x 7 x 7
+            nn.Conv2d(256,1,7,1,0),
+            # state size. 1 x 1 x 1
+            # nn.Sigmoid()
         )
 
     def sample(self,num):
