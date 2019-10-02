@@ -9,20 +9,20 @@ class WGAN():
         # latent_dim = 10
 
         self.generator=nn.Sequential(
-            nn.Linear(self.args.latent_dim,32),
+            nn.Linear(self.args.latent_dim,64),
             nn.LeakyReLU(0.2),
-            nn.Linear(32,128),
+            nn.Linear(64,128),
             nn.LeakyReLU(0.2),
             nn.Linear(128,self.args.input_dim),
-            nn.Sigmoid()
+            nn.Tanh()
         )
 
         self.discriminator=nn.Sequential(
             nn.Linear(self.args.input_dim,128),
             nn.LeakyReLU(0.2),
-            nn.Linear(128,32),
+            nn.Linear(128,64),
             nn.LeakyReLU(0.2),
-            nn.Linear(32,1)
+            nn.Linear(64,1)
         )
 
     def sample(self,num):

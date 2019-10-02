@@ -68,8 +68,8 @@ class WGANRunner:
         self.wgan.discriminator.train()
         for batch_id,batch in enumerate(self.train_loader, 1):
 
-            # batch_size * 1 * 28 * 28  grey image, [0,1]
-            images=batch[0].cuda()
+            # batch_size * 1 * 28 * 28  grey image, scale to [-1,1]
+            images=batch[0].cuda()*2-1
 
             # batch_size
             # label=batch[1]
@@ -88,7 +88,9 @@ class WGANRunner:
 
             grad_penalty=self.args.lamda*t.mean(t.relu(grad_norm-1))
 
+
             discriminator_loss=t.mean(self.wgan.discriminator(images.reshape(-1,self.args.input_dim))-self.wgan.discriminator(fake))+grad_penalty
+
 
             # train discriminator
             self.generator_optimizer.zero_grad()
