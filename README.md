@@ -6,14 +6,14 @@
 
 <img src="./img/CVAE.gif" alt="" style="zoom:40%;" />
 
-### GAN
+### DCGAN
 
-<img src="./img/GAN.gif" alt="" style="zoom:40%;" />
+<img src="./img/DCGAN.gif" alt="" style="zoom:40%;" />
 
 ### WGAN
 
 <img src="./img/WGAN.gif" style="zoom:40%;" />
 
-### CGAN
+### CDCGAN
 
-<img src="./img/CGAN.gif" style="zoom:40%;" />
+<img src="./img/CDCGAN.gif" style="zoom:40%;" />
