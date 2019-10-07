@@ -1,57 +1,41 @@
 from model.WGAN import WGAN
+from .BasicRunner import BasicRunner
 import torch as t
 import numpy as np
 import matplotlib.pyplot as plt
-from torchvision import datasets,transforms
-from torch.utils.data import DataLoader
 from torch.optim import Adam
 import logging
-import os
 
-class WGANRunner:
+
+# lr = 1e-4
+# epoch_num = 10
+class WGANRunner(BasicRunner):
     def __init__(self,args):
-        super().__init__()
-        self.args=args
-        os.environ["CUDA_VISIBLE_DEVICES"] = self.args.gpu
-        self._build_loader()
-        self._build_model()
-        self._build_optimizer()
-
-    def _get_dataset(self):
-        transform=transforms.Compose([transforms.ToTensor()])
-        train=datasets.MNIST(root=self.args.data_root,transform=transform,train=True,download=True)
-        test=datasets.MNIST(root=self.args.data_root,transform=transform,train=False,download=True)
-        return train,test
+        super(WGANRunner,self).__init__(args)
 
     def _build_model(self):
         self.wgan=WGAN(self.args)
         self.wgan.generator.cuda()
         self.wgan.discriminator.cuda()
 
-    def _build_loader(self):
-        train,test=self._get_dataset()
-        self.train_loader=DataLoader(dataset=train, batch_size=self.args.batch_size,num_workers=self.args.num_workers,shuffle=True)
-        self.test_loader=DataLoader(dataset=test,batch_size=self.args.batch_size, num_workers=self.args.num_workers,shuffle=False)
-
     def _build_optimizer(self):
-        self.generator_optimizer=Adam(self.wgan.generator.parameters(),lr=self.args.generator_lr,betas=(0.5,0.999))
-        self.discriminator_optimizer=Adam(self.wgan.discriminator.parameters(),lr=self.args.discriminator_lr,betas=(0.5,0.999))
+        self.generator_optimizer=Adam(self.wgan.generator.parameters(),lr=self.args.lr,betas=(0.5,0.999))
+        self.discriminator_optimizer=Adam(self.wgan.discriminator.parameters(),lr=self.args.lr,betas=(0.5,0.999))
 
-    def train(self):
-        for epoch in range(1,self.args.epoch_num+1):
-            logging.info('Start Train Epoch {}'.format(epoch))
-            self._train_one_epoch(epoch)
-            self.eval(epoch)
+    def _get_fixed_noise_for_evaluation(self):
+        n=self.args.test_num
+        self.Z=self.wgan.sample(n*n).cuda().unsqueeze(-1).unsqueeze(-1)
 
     def eval(self,epoch):
         self.wgan.generator.eval()
         self.wgan.discriminator.eval()
         n=self.args.test_num
-        digit_size=28
+        digit_size=self.args.digit_size
+
         figure=np.zeros((digit_size*n, digit_size*n))
-        Z=self.wgan.sample(n*n).cuda().unsqueeze(-1).unsqueeze(-1)
+
         # batch_size * digit_size * digit_size
-        result=(self.wgan.generator(Z).squeeze().detach().cpu().numpy()+1)/2
+        result=(self.wgan.generator(self.Z).squeeze().detach().cpu().numpy()+1)/2
         result=result.reshape(n*n,digit_size,digit_size)
         for i in range(n):
             for j in range(n):

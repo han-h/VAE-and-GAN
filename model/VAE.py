@@ -6,10 +6,6 @@ class VAE(nn.Module):
         super().__init__()
         self.args=args
 
-        # input_dim = 784
-        # hidden_dim = 256
-        # latent_dim = 2 or 10
-
         # reduce dimension
         self.encoder=nn.Linear(self.args.input_dim,self.args.hidden_dim)
 

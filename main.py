@@ -1,7 +1,7 @@
 from runner.VAERunner import VAERunner
 from runner.CVAERunner import CVAERunner
-from runner.GANRunner import GANRunner
-from runner.CGANRunner import CGANRunner
+from runner.DCGANRunner import DCGANRunner
+from runner.CDCGANRunner import CDCGANRunner
 from runner.WGANRunner import WGANRunner
 import logging
 import argparse
@@ -15,14 +15,13 @@ def parse_args():
     parser.add_argument('--gpu', type=str, default='3', help='')
     parser.add_argument('--data-root',type=str, default='./data',help='')
 
-    parser.add_argument('--input_dim', type=int, default=784, help='')
+    parser.add_argument('--digit-size', type=int, default=28, help='')
+    parser.add_argument('--input-dim', type=int, default=784, help='')
     parser.add_argument('--hidden-dim', type=int, default=256, help='')
     parser.add_argument('--latent-dim', type=int, default=10, help='')
-    parser.add_argument('--epoch-num', type=int, default=20, help='')
+    parser.add_argument('--epoch-num', type=int, default=10, help='')
 
     parser.add_argument('--lr', type=float, default=1e-4, help='')
-    parser.add_argument('--generator-lr', type=float, default=1e-4, help='')
-    parser.add_argument('--discriminator-lr', type=float, default=1e-4, help='')
     parser.add_argument('--test-num', type=int,default=10,help='')
     parser.add_argument('--num-classes', type=int,default=10,help='')
     parser.add_argument('--lamda', type=float, default=10., help='')
@@ -36,19 +35,15 @@ def main(args):
         runner=VAERunner(args)
     elif args.model=='cvae':
         runner=CVAERunner(args)
-    elif args.model=='gan':
-        runner=GANRunner(args)
-    elif args.model=='cgan':
-        runner=CGANRunner(args)
+    elif args.model=='dcgan':
+        runner=DCGANRunner(args)
+    elif args.model=='cdcgan':
+        runner=CDCGANRunner(args)
     elif args.model=='wgan':
         runner=WGANRunner(args)
     else:
         runner=VAERunner(args)
     runner.train()
-    # if args.train:
-    #     runner.train()
-    # if args.evaluate:
-    #     runner.eval()
 
 
 if __name__ == '__main__':
